@@ -1,4 +1,12 @@
+from pathlib import Path
+
 from pysondb import db
+
+db_directory = Path('db')
+db_directory.mkdir(exist_ok=True)
+
+recordings_directory = Path('recordings')
+recordings_directory.mkdir(exist_ok=True)
 
 user_pronunciation_db = db.getDb("db/tbl_user_pronunciation.json")
 user_pronunciation_audio_settings_db = db.getDb("db/tbl_user_pronunciation_audio_settings.json")
