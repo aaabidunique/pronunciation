@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from flask_restful import Api
 
@@ -11,7 +13,7 @@ def main():
     api.add_resource(UserPronunciationEndpoints, '/pronunciation')
     api.add_resource(DefaultPronunciationEndpoints, '/default-pronunciation')
 
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
 
 
 if __name__ == '__main__':

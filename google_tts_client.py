@@ -1,8 +1,6 @@
 from google.cloud import texttospeech
-from google.oauth2 import service_account
 
-credentials = service_account.Credentials.from_service_account_file('credentials.json')
-client = texttospeech.TextToSpeechClient(credentials=credentials)
+client = texttospeech.TextToSpeechClient()
 
 
 def generate_and_save_audio(text: str, path_to_save: str):
