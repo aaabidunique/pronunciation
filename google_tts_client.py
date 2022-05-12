@@ -1,6 +1,6 @@
 from google.cloud import texttospeech
 
-client = texttospeech.TextToSpeechClient()
+# client = texttospeech.TextToSpeechClient()
 
 
 def generate_and_save_audio(text: str, path_to_save: str):
