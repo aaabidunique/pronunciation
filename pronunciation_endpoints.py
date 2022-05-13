@@ -5,7 +5,7 @@ from flask import request, send_file
 from flask_restful import Resource
 
 from database import get_user_pronunciation, save_user_pronunciation, remove_user_pronunciation
-from google_storage_client import save_pronunciation, get_pronunciation, delete_pronunciation
+from google_storage_client import save_pronunciation_audio, get_pronunciation_audio, delete_pronunciation_audio
 from google_tts_client import generate_audio
 from utils import create_logger
 
@@ -24,7 +24,7 @@ class PronunciationEndpoints(Resource):
                 return None, 204
 
             return send_file(
-                get_pronunciation(user_pronunciation['audioFileName']), mimetype="audio/mp3", as_attachment=True,
+                get_pronunciation_audio(user_pronunciation['audioFileName']), mimetype="audio/mp3", as_attachment=True,
                 download_name=f"{user_id}.mp3")
         except Exception as e:
             logger.exception("Error occurred while getting pronunciation")
@@ -53,12 +53,13 @@ class PronunciationEndpoints(Resource):
                 name = preferred_name if preferred_name else f'{legal_first_name} {legal_last_name}'
                 generate_audio(name, audio_file_path)
 
-            save_pronunciation(audio_file_name, audio_file_path)
+            save_pronunciation_audio(audio_file_name, audio_file_path)
 
             old_user_pronunciation = save_user_pronunciation(user_id, legal_first_name, legal_last_name, preferred_name,
                                                              audio_file_name)
+
             if old_user_pronunciation:
-                delete_pronunciation(old_user_pronunciation['audioFileName'])
+                delete_pronunciation_audio(old_user_pronunciation['audioFileName'])
 
             return None, 204
         except Exception as e:
@@ -73,7 +74,7 @@ class PronunciationEndpoints(Resource):
             user_id = request.form['userId']
             old_user_pronunciation = remove_user_pronunciation(user_id)
             if old_user_pronunciation:
-                delete_pronunciation(old_user_pronunciation['audioFileName'])
+                delete_pronunciation_audio(old_user_pronunciation['audioFileName'])
 
             return None, 204
         except Exception as e:

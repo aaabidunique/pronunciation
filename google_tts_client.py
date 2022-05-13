@@ -20,5 +20,5 @@ def generate_audio(text: str, file_name: str):
         request={"input": input_text, "voice": voice, "audio_config": audio_config}
     )
 
-    with open(f'{file_name}.mp3', "wb") as out:
+    with open(f'{file_name}', "wb") as out:
         out.write(response.audio_content)
