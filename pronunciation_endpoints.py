@@ -1,12 +1,12 @@
-import os
+import io
 import uuid
 
 from flask import request, send_file
 from flask_restful import Resource
 
-from database import get_user_pronunciation, save_user_pronunciation, remove_user_pronunciation
-from google_storage_client import save_pronunciation_audio, get_pronunciation_audio, delete_pronunciation_audio
-from google_tts_client import generate_audio
+from database import *
+from google_storage_client import *
+from google_tts_client import *
 from utils import create_logger
 
 logger = create_logger(__name__)
@@ -46,14 +46,14 @@ class PronunciationEndpoints(Resource):
             audio_file = request.files['audio'] if 'audio' in request.files else None
 
             audio_file_name = f'{str(uuid.uuid4())}.mp3'
-            audio_file_path = f'{os.path.join(os.getcwd(), "recordings", audio_file_name)}'
             if audio_file:
-                audio_file.save(audio_file_path)
+                audio_file_byte_array = io.BytesIO()
+                audio_file.save(audio_file_byte_array)
+                save_pronunciation_audio_from_string(audio_file_name, audio_file_byte_array.getvalue())
             else:
                 name = preferred_name if preferred_name else f'{legal_first_name} {legal_last_name}'
-                generate_audio(name, audio_file_path)
-
-            save_pronunciation_audio(audio_file_name, audio_file_path)
+                generated_audio_byte_array = generate_audio(name)
+                save_pronunciation_audio_from_string(audio_file_name, generated_audio_byte_array)
 
             old_user_pronunciation = save_user_pronunciation(user_id, legal_first_name, legal_last_name, preferred_name,
                                                              audio_file_name)
