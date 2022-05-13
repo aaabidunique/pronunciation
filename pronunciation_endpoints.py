@@ -1,3 +1,4 @@
+import os
 import uuid
 
 from flask import request, send_file
@@ -42,13 +43,14 @@ class PronunciationEndpoints(Resource):
             audio_file = request.files['audio'] if 'audio' in request.files else None
 
             audio_file_name = f'{str(uuid.uuid4())}.mp3'
+            audio_file_path = f'{os.path.join(os.getcwd(), "recordings", audio_file_name)}.mp3'
             if audio_file:
-                audio_file.save(audio_file_name)
+                audio_file.save(audio_file_path)
             else:
                 name = preferred_name if preferred_name else f'{legal_first_name} {legal_last_name}'
-                generate_audio(name, audio_file_name)
+                generate_audio(name, audio_file_path)
 
-            save_pronunciation(audio_file_name)
+            save_pronunciation(audio_file_name, audio_file_path)
 
             old_user_pronunciation = save_user_pronunciation(user_id, legal_first_name, legal_last_name, preferred_name,
                                                              audio_file_name)
