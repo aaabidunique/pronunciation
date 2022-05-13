@@ -23,8 +23,11 @@ class PronunciationEndpoints(Resource):
             if not user_pronunciation:
                 return None, 204
 
+            saved_pronunciation_audio = io.BytesIO(
+                get_pronunciation_audio_as_string(user_pronunciation['audioFileName']))
+
             return send_file(
-                get_pronunciation_audio(user_pronunciation['audioFileName']), mimetype="audio/mp3", as_attachment=True,
+                saved_pronunciation_audio, mimetype="audio/mp3", as_attachment=True,
                 download_name=f"{user_id}.mp3")
         except Exception as e:
             logger.exception("Error occurred while getting pronunciation")
@@ -57,7 +60,6 @@ class PronunciationEndpoints(Resource):
 
             old_user_pronunciation = save_user_pronunciation(user_id, legal_first_name, legal_last_name, preferred_name,
                                                              audio_file_name)
-
             if old_user_pronunciation:
                 delete_pronunciation_audio(old_user_pronunciation['audioFileName'])
 
