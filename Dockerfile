@@ -8,13 +8,13 @@ ENV PYTHONUNBUFFERED True
 # creating working directory and copying requirements.txt
 ENV APP_HOME /app
 WORKDIR $APP_HOME
-COPY requirements.txt ./requirements.txt
+COPY requirements.txt .
 
 # Install production dependencies.
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy local code to the container image.
-COPY . ./
+COPY . .
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.

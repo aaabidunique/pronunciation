@@ -1,9 +1,14 @@
 from google.cloud import texttospeech
+from google.cloud.texttospeech_v1 import TextToSpeechClient
 
-# client = texttospeech.TextToSpeechClient()
+client: TextToSpeechClient = None
 
 
 def generate_and_save_audio(text: str, path_to_save: str):
+    global client
+    if not client:
+        client = texttospeech.TextToSpeechClient()
+
     input_text = texttospeech.SynthesisInput(text=text)
 
     voice = texttospeech.VoiceSelectionParams(
