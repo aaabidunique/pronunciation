@@ -5,8 +5,7 @@ from flask_restful import Resource
 
 from database import get_user_pronunciation, save_user_pronunciation, remove_user_pronunciation
 from google_storage_client import save_pronunciation, get_pronunciation, delete_pronunciation
-from google_tts_client import generate_and_save_audio
-from utils import generate_audio_file_path
+from google_tts_client import generate_audio
 
 
 class PronunciationEndpoints(Resource):
@@ -42,17 +41,14 @@ class PronunciationEndpoints(Resource):
             preferred_name = request.form['preferredName'] if 'preferredName' in request.form else None
             audio_file = request.files['audio'] if 'audio' in request.files else None
 
-            audio_file_name = str(uuid.uuid4())
-            audio_file_path = generate_audio_file_path(audio_file_name)
+            audio_file_name = f'{str(uuid.uuid4())}.mp3'
             if audio_file:
-                save_pronunciation(audio_file_name, audio_file_path)
+                audio_file.save(audio_file_name)
             else:
-                try:
-                    name = preferred_name if preferred_name else f'{legal_first_name} {legal_last_name}'
-                    generate_and_save_audio(name, audio_file_path)
-                except Exception as e:
-                    print('Unexpected error', e)
-                    return f'Unexpected Error, {str(e)}', 500
+                name = preferred_name if preferred_name else f'{legal_first_name} {legal_last_name}'
+                generate_audio(name, audio_file_name)
+
+            save_pronunciation(audio_file_name)
 
             old_user_pronunciation = save_user_pronunciation(user_id, legal_first_name, legal_last_name, preferred_name,
                                                              audio_file_name)
