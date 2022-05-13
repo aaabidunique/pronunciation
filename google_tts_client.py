@@ -1,13 +1,10 @@
 from google.cloud import texttospeech
-from google.cloud.texttospeech_v1 import TextToSpeechClient
 
-client: TextToSpeechClient = None
+from google_storage_client import save_pronunciation
 
 
-def generate_and_save_audio(text: str, path_to_save: str):
-    global client
-    if not client:
-        client = texttospeech.TextToSpeechClient()
+def generate_and_save_audio(text: str, destination_file_name: str):
+    client = texttospeech.TextToSpeechClient()
 
     input_text = texttospeech.SynthesisInput(text=text)
 
@@ -25,6 +22,4 @@ def generate_and_save_audio(text: str, path_to_save: str):
         request={"input": input_text, "voice": voice, "audio_config": audio_config}
     )
 
-    # The response's audio_content is binary.
-    with open(path_to_save, "wb") as out:
-        out.write(response.audio_content)
+    save_pronunciation(destination_file_name, response.audio_content)

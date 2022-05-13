@@ -1,10 +1,10 @@
-import os
 import uuid
 
 from flask import request, send_file
 from flask_restful import Resource
 
 from database import get_user_pronunciation, save_user_pronunciation, remove_user_pronunciation
+from google_storage_client import save_pronunciation, get_pronunciation, delete_pronunciation
 from google_tts_client import generate_and_save_audio
 from utils import generate_audio_file_path
 
@@ -20,7 +20,7 @@ class PronunciationEndpoints(Resource):
             return None, 204
 
         return send_file(
-            generate_audio_file_path(user_pronunciation['audioFileName']), mimetype="audio/mp3", as_attachment=True,
+            get_pronunciation(user_pronunciation['audioFileName']), mimetype="audio/mp3", as_attachment=True,
             download_name=f"{user_id}.mp3")
 
     def post(self):
@@ -40,7 +40,7 @@ class PronunciationEndpoints(Resource):
         audio_file_name = str(uuid.uuid4())
         audio_file_path = generate_audio_file_path(audio_file_name)
         if audio_file:
-            audio_file.save(audio_file_path)
+            save_pronunciation(audio_file_name, audio_file_path)
         else:
             try:
                 name = preferred_name if preferred_name else f'{legal_first_name} {legal_last_name}'
@@ -52,9 +52,7 @@ class PronunciationEndpoints(Resource):
         old_user_pronunciation = save_user_pronunciation(user_id, legal_first_name, legal_last_name, preferred_name,
                                                          audio_file_name)
         if old_user_pronunciation:
-            old_audio_file_path = generate_audio_file_path(old_user_pronunciation['audioFileName'])
-            if os.path.exists(old_audio_file_path):
-                os.remove(old_audio_file_path)
+            delete_pronunciation(old_user_pronunciation['audioFileName'])
 
         return None, 204
 
@@ -65,8 +63,6 @@ class PronunciationEndpoints(Resource):
         user_id = request.form['userId']
         old_user_pronunciation = remove_user_pronunciation(user_id)
         if old_user_pronunciation:
-            old_audio_file_path = generate_audio_file_path(old_user_pronunciation['audioFileName'])
-            if os.path.exists(old_audio_file_path):
-                os.remove(old_audio_file_path)
+            delete_pronunciation(old_user_pronunciation['audioFileName'])
 
         return None, 204
