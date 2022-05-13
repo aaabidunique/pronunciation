@@ -7,6 +7,9 @@ from flask_restful import Resource
 from database import get_user_pronunciation, save_user_pronunciation, remove_user_pronunciation
 from google_storage_client import save_pronunciation, get_pronunciation, delete_pronunciation
 from google_tts_client import generate_audio
+from utils import create_logger
+
+logger = create_logger(__name__)
 
 
 class PronunciationEndpoints(Resource):
@@ -24,7 +27,7 @@ class PronunciationEndpoints(Resource):
                 get_pronunciation(user_pronunciation['audioFileName']), mimetype="audio/mp3", as_attachment=True,
                 download_name=f"{user_id}.mp3")
         except Exception as e:
-            print('Unexpected error', e)
+            logger.exception("Error occurred while getting pronunciation")
             return f'Unexpected Error, {str(e)}', 500
 
     def post(self):
@@ -43,7 +46,7 @@ class PronunciationEndpoints(Resource):
             audio_file = request.files['audio'] if 'audio' in request.files else None
 
             audio_file_name = f'{str(uuid.uuid4())}.mp3'
-            audio_file_path = f'{os.path.join(os.getcwd(), "recordings", audio_file_name)}.mp3'
+            audio_file_path = f'{os.path.join(os.getcwd(), "recordings", audio_file_name)}'
             if audio_file:
                 audio_file.save(audio_file_path)
             else:
@@ -59,7 +62,7 @@ class PronunciationEndpoints(Resource):
 
             return None, 204
         except Exception as e:
-            print('Unexpected error', e)
+            logger.exception("Error occurred while posting pronunciation")
             return f'Unexpected Error, {str(e)}', 500
 
     def delete(self):
@@ -74,5 +77,5 @@ class PronunciationEndpoints(Resource):
 
             return None, 204
         except Exception as e:
-            print('Unexpected error', e)
+            logger.exception("Error occurred while deleting pronunciation")
             return f'Unexpected Error, {str(e)}', 500
